@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const connection = require('./config/db.js')
 const userRoutes = require("./routes/userRoutes"); 
+const productRoutes = require('./routes/productlistRoute')
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,7 @@ app.get("/", (req, res) => {
 });
 // Use user routes
 app.use("/users", userRoutes);
-
+app.use('/productlists', productRoutes);
 
 // Define the port
 const PORT = process.env.PORT || 5000;

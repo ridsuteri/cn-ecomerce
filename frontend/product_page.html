@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,7 +38,8 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Vertical alignment */
+            justify-content: space-between;
+            /* Vertical alignment */
             height: 100%;
         }
 
@@ -53,7 +55,8 @@
 
         .btn {
             /* Utilizing Bootstrap utility classes */
-            margin-top: auto; /* Align button to bottom of card body */
+            margin-top: auto;
+            /* Align button to bottom of card body */
         }
 
         h1 {
@@ -78,6 +81,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="mb-4">E-Commerce Product Page</h1>
@@ -85,7 +89,8 @@
         <!-- Search and Price Range Filter Section -->
         <div class="d-flex align-items-center mb-4">
             <!-- Search input -->
-            <input type="text" id="search" class="form-control mr-3" placeholder="Search for products..." style="flex: 1;">
+            <input type="text" id="search" class="form-control mr-3" placeholder="Search for products..."
+                style="flex: 1;">
 
             <!-- Price range dropdown -->
             <div class="select-wrapper" style="flex: 0 0 25%;">
@@ -115,7 +120,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Define the base class for a product
             class Product {
                 constructor(name, price, description, image) {
@@ -192,14 +197,14 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Fetched products:', data);//console log the data it
+                    console.log('Fetched products:', data);
                     window.products = data; // Store products globally for filtering
                     displayProducts(data); // Display all products initially
 
                     // Also display the dummy discounted product for inheritance demonstration
                     const productList = document.getElementById('product-list');
                     productList.innerHTML += discountedProduct.display();
-                    
+
                     // Attach event listeners after products have been added
                     attachEventListeners();
                 })
@@ -237,7 +242,7 @@
                     // Append the card to the product list container
                     productList.appendChild(card);
                 });
-                
+
                 // Attach event listeners after products have been added
                 attachEventListeners();
             }
@@ -264,7 +269,7 @@
             // Function to handle search
             function handleSearch(query) {
                 try {
-                    const filteredProducts = window.products.filter(product => 
+                    const filteredProducts = window.products.filter(product =>
                         product.name.toLowerCase().includes(query.toLowerCase()) ||
                         product.description.toLowerCase().includes(query.toLowerCase())
                     );
@@ -346,7 +351,7 @@
                 let maxPrice = Infinity;
 
                 if (priceRange) {
-                        [minPrice, maxPrice] = priceRange.split('-').map(Number);
+                    [minPrice, maxPrice] = priceRange.split('-').map(Number);
                 }
 
                 // Filter products based on query and price range
@@ -366,4 +371,5 @@
 
     </script>
 </body>
+
 </html>
