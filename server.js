@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connection = require('./config/db.js')
-const userRoutes = require("./routes/userRoutes"); 
+const authRoutes = require("./routes/authRoutes.js"); 
 const productRoutes = require('./routes/productlistRoute')
 
 const app = express();
@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 // Use user routes
-app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
 app.use('/productlists', productRoutes);
 
 // Define the port
