@@ -3,7 +3,7 @@ const Cart = require("../models/cartModel");
 
 // Add item to the cart
 exports.addItem = async (req, res) => {
-  const { userId, productId, quantity } = req.body;
+  const { userId, productId, quantity, price } = req.body;
 
   try {
     // Check if the cart already exists for the user
@@ -69,9 +69,10 @@ exports.getCart = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    // redis.get('userId-cart').then()
     const cart = await Cart.findOne({ user: userId }).populate(
       "items.product",
-      "name price"
+      "name price image"
     ); // Populate product details
 
     if (!cart) {

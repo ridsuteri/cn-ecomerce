@@ -4,8 +4,9 @@ const middleware = require("../middleware/requirelogin");
 // Route to get user details by ID
 exports.getUserDetails = async (req, res) => {
   try {
+    const id = req.user?._id?.toString() ?? '';
     // Find the user details by ID and populate 'profileData' with 'name' and 'email' from the User model
-    const userDetails = await UserDetails.findById(req.params.id).populate(
+    const userDetails = await UserDetails.findById(id).populate(
       "profileData",
       "name email"
     );
@@ -23,9 +24,10 @@ exports.getUserDetails = async (req, res) => {
 
 exports.postUserDetails = async (req, res) => {
   try {
-    const { profileData, profilePic, address, personalDetails } = req.body;
+    const id = req.user?._id?.toString() ?? '';
+    const {profilePic, address, personalDetails } = req.body;
     // Check if the referenced User exists
-    const existingUser = await User.findById(profileData);
+    const existingUser = await User.findById(id);
     if (!existingUser) {
       return res
         .status(404)
@@ -34,7 +36,7 @@ exports.postUserDetails = async (req, res) => {
 
     // Create new UserDetails document
     const newUserDetails = new UserDetails({
-      profileData, // The ID referencing the User model
+      profileData: id, // The ID referencing the User model
       profilePic,
       address,
       personalDetails,
@@ -57,10 +59,10 @@ exports.postUserDetails = async (req, res) => {
 exports.updateUserDetails = async (req, res) => {
   try {
     const { profilePic, address, personalDetails } = req.body;
-
+    const id = req.user?._id?.toString() ?? '';
     // Find the user details by ID and update with the new data
     const updatedUserDetails = await UserDetails.findByIdAndUpdate(
-      req.params.id,
+      id,
       {
         profilePic,
         address,

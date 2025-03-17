@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 // Define the User Details Schema
 const userDetailsSchema = new mongoose.Schema({
-  profileData: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the User model
+  profileData: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true }, // Reference to the User model
   profilePic: { type: String },
   address: { type: String },
   personalDetails: { type: Object }

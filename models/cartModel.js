@@ -8,7 +8,7 @@ const cartSchema = new mongoose.Schema({
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductLists', required: true }, // Reference to Product model
     quantity: { type: Number, required: true, min: 1 }
   }],
-  price:{type: Number, required: true}
+  price:{type: Number}
 });
 
 const Cart = mongoose.model('Cart', cartSchema);

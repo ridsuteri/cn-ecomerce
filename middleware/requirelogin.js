@@ -8,10 +8,10 @@ module.exports = (req, res, next) => {
   if (!authorization) {
     return res.status(422).json({ error: "not authorized" });
   }
-  const token = authorization.replace("bearer ", "");
+  const token = authorization.replace("Bearer ", "");
   JWT.verify(token, process.env.JWTTOKENS, (err, payload) => {
     if (err) {
-      return res.status(402).json({ error: "not verify" });
+      return res.status(402).json({ error: `error verifying token: ${err}` });
     }
     const { _id } = payload;
     User.findById(_id).then((userdata) => {
