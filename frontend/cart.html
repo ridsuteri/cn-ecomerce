@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="cart-container">
         <h1 class="cart-title">Shopping Cart</h1>
@@ -17,23 +19,24 @@
             <button class="cart-checkout-button" id="checkout-button">Checkout</button>
         </div>
     </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const cartItemsContainer = document.getElementById('cart-items');
-    const cartTotalElement = document.getElementById('cart-total');
-    const checkoutButton = document.getElementById('checkout-button');
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            const checkoutButton = document.getElementById('checkout-button');
 
-    // Function to load cart items from localStorage and display them in the cart
-    function loadCartItems() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        if (cart.length > 0) {
-            cartItemsContainer.innerHTML = ''; // Clear any existing items
+            // Function to load cart items from localStorage and display them in the cart
+            function loadCartItems() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart.length > 0) {
+                    cartItemsContainer.innerHTML = ''; // Clear any existing items
 
-            cart.forEach((product, index) => {
-                const cartItem = document.createElement('div');
-                cartItem.className = 'cart-item';
+                    cart.forEach((product, index) => {
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'cart-item';
 
-                cartItem.innerHTML = `
+                        cartItem.innerHTML = `
                     <img src="${product.image}" alt="${product.name}">
                     <div class="cart-item-details">
                         <h3 class="cart-item-title">${product.name}</h3>
@@ -45,49 +48,112 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                cartItemsContainer.appendChild(cartItem);
+                        cartItemsContainer.appendChild(cartItem);
 
-                // Add event listeners
-                const removeButton = cartItem.querySelector('.remove-button');
-                const quantityInput = cartItem.querySelector('.quantity-input');
+                        // Add event listeners
+                        const removeButton = cartItem.querySelector('.remove-button');
+                        const quantityInput = cartItem.querySelector('.quantity-input');
 
-                removeButton.addEventListener('click', () => {
-                    cart.splice(index, 1);
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    loadCartItems();
-                });
+                        removeButton.addEventListener('click', () => {
+                            cart.splice(index, 1);
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            loadCartItems();
+                        });
 
-                quantityInput.addEventListener('change', (event) => {
-                    product.quantity = parseInt(event.target.value);
-                    localStorage.setItem('cart', JSON.stringify(cart));
+                        quantityInput.addEventListener('change', (event) => {
+                            product.quantity = parseInt(event.target.value);
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            updateCartTotal();
+                        });
+                    });
+
                     updateCartTotal();
+                } else {
+                    cartItemsContainer.innerHTML = '<p>Your cart is empty</p>';
+                }
+            }
+
+            // Function to update the cart total
+            function updateCartTotal() {
+                let total = 0;
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.forEach(item => {
+                    total += item.price * item.quantity;
                 });
+                cartTotalElement.textContent = `Total: $${total.toFixed(2)}`;
+            }
+
+            // Initialize cart items
+            loadCartItems();
+            async function payNow() {
+                const amount = 999;
+
+                // Create order by calling the server endpoint
+                const response = await fetch('http://localhost:5000/payments/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount, currency: 'INR', receipt: 'receipt#1', notes: {} })
+                });
+
+                const order = await response.json();
+
+                // Open Razorpay Checkout
+                const options = {
+                    key: 'rzp_test_jwvET1kCIdLTuu', // Replace with your Razorpay key_id
+                    amount: order.amount,
+                    currency: order.currency,
+                    name: 'CN commerce',
+                    description: 'Test Transaction',
+                    order_id: order.id, // This is the order_id created in the backend
+                    // callback_url: 'http://localhost:3000/payment-success', // Your success URL
+                    prefill: {
+                        name: 'Your Name',
+                        email: 'your.email@example.com',
+                        contact: '9999999999'
+                    },
+                    theme: {
+                        color: '#F37254'
+                    },
+                    handler: function (response) {
+                        fetch('http://localhost:5000/payments/verify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        }).then(res => res.json())
+                            .then(data => {
+                                if (data.status === 'ok') {
+                                    // window.location.href = 'http://localhost:3000/payment-success';
+                                    alert('payment verification successful')
+                                } else {
+                                    alert('Payment verification failed');
+                                }
+                            }).catch(error => {
+                                console.error('Error:', error);
+                                alert('Error verifying payment');
+                            });
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            }
+
+
+            // Handle checkout button click
+            checkoutButton.addEventListener('click', () => {
+                alert('Proceeding to checkout');
+                payNow();
             });
-
-            updateCartTotal();
-        } else {
-            cartItemsContainer.innerHTML = '<p>Your cart is empty</p>';
-        }
-    }
-
-    // Function to update the cart total
-    function updateCartTotal() {
-        let total = 0;
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        cart.forEach(item => {
-            total += item.price * item.quantity;
         });
-        cartTotalElement.textContent = `Total: $${total.toFixed(2)}`;
-    }
-
-    // Initialize cart items
-    loadCartItems();
-
-    // Handle checkout button click
-    checkoutButton.addEventListener('click', () => {
-        alert('Proceeding to checkout');
-    });
-});
     </script>
 </body>
+
 </html>
